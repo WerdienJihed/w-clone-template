@@ -1,0 +1,16 @@
+{
+  "name": "w-clone-template",
+  "version": "1.0.3",
+  "type": "module",
+  "bin": {
+    "w-crt": "index.js"
+  },
+  "description": "The \"clone template\" npm package quickly sets up new project by cloning a repository. Simplifies project initiation and maintains consistency.",
+  "main": "index.js",
+  "author": "Werdien Jihed",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0"
+  }
+}
