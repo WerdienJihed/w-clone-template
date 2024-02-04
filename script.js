@@ -1,6 +1,15 @@
 import path from "path";
 import fs from "fs";
-import { cloneRepo, resetGit } from "./utils.js";
+import {
+  cloneRepo,
+  removeGitFolder,
+  resetGit,
+  editPackageJson,
+  editPackageLockJson,
+  removeReadme,
+  editIndexHtml,
+} from "./utils.js";
+
 import chalk from "chalk";
 
 const reactRepositoryUrl = "https://github.com/WerdienJihed/react-template";
@@ -83,6 +92,37 @@ export const handleExpress = async (destinationDirectory, projectName) => {
     // Reset README.md
     const readmePath = path.join(destinationDirectory, "README.md");
     fs.writeFileSync(readmePath, `# ${projectName}`);
+
+    console.log(
+      chalk.green(
+        "Project setup completed successfully! Repository cloned, files edited, and npm dependencies installed!"
+      )
+    );
+  } catch (error) {
+    console.log(chalk.red(error));
+  }
+};
+
+export const handleMern = async (destinationDir, projectName) => {
+  try {
+    const clientDir = path.join(destinationDir, "client");
+    const serverDir = path.join(destinationDir, "server");
+    console.log({ clientDir });
+    /* CLIENT */
+    await cloneRepo(reactRepositoryUrl, clientDir);
+    await editPackageJson(clientDir, "client");
+    await editPackageLockJson(clientDir, "client");
+    await editIndexHtml(clientDir, projectName);
+    await removeGitFolder(clientDir);
+    await removeReadme(clientDir);
+
+    /* SERVER */
+
+    await cloneRepo(expressRepositoryUrl, serverDir);
+    await editPackageJson(serverDir, "server");
+    await editPackageLockJson(serverDir, "server");
+    await removeGitFolder(serverDir);
+    await removeReadme(serverDir);
 
     console.log(
       chalk.green(

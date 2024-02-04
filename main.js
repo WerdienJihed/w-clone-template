@@ -2,7 +2,7 @@
 import { program, Option } from "commander";
 import path from "path";
 
-import { handleReact, handleExpress } from "./script.js";
+import { handleReact, handleExpress, handleMern } from "./script.js";
 
 program
   .name("w-clone-template")
@@ -16,7 +16,7 @@ program
   .option("-d, --directory <path>", "Destination directory")
   .addOption(
     new Option("-t, --template <template-name>", "Template to clone from")
-      .choices(["react", "express"])
+      .choices(["react", "express", "mern"])
       .default("react")
   );
 
@@ -36,6 +36,9 @@ switch (template) {
     break;
   case "express":
     await handleExpress(destinationDirectory, projectName);
+    break;
+  case "mern":
+    await handleMern(destinationDirectory, projectName);
     break;
   default:
     break;
