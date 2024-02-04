@@ -6,7 +6,15 @@
     "w-crt": "index.js"
   },
   "description": "The \"clone template\" npm package quickly sets up new project by cloning a repository. Simplifies project initiation and maintains consistency.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WerdienJihed/w-clone-template.git"
+  },
+  "homepage": "https://github.com/WerdienJihed/w-clone-template.git#readme",
   "main": "index.js",
+  "keywords": [
+    "Project scaffolding"
+  ],
   "author": "Werdien Jihed",
   "license": "MIT",
   "dependencies": {
