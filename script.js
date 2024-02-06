@@ -1,5 +1,9 @@
 import path from "path";
 import fs from "fs";
+import chalk from "chalk";
+import util from "util";
+import { exec } from "child_process";
+import os from "os";
 import {
   cloneRepo,
   removeGitFolder,
@@ -8,9 +12,11 @@ import {
   editPackageLockJson,
   removeReadme,
   editIndexHtml,
+  initGit,
 } from "./utils.js";
 
-import chalk from "chalk";
+const execAsync = util.promisify(exec);
+const isWindows = os.platform() === "win32";
 
 const reactRepositoryUrl = "https://github.com/WerdienJihed/react-template";
 const expressRepositoryUrl =
@@ -107,7 +113,7 @@ export const handleMern = async (destinationDir, projectName) => {
   try {
     const clientDir = path.join(destinationDir, "client");
     const serverDir = path.join(destinationDir, "server");
-    console.log({ clientDir });
+
     /* CLIENT */
     await cloneRepo(reactRepositoryUrl, clientDir);
     await editPackageJson(clientDir, "client");
@@ -123,6 +129,37 @@ export const handleMern = async (destinationDir, projectName) => {
     await editPackageLockJson(serverDir, "server");
     await removeGitFolder(serverDir);
     await removeReadme(serverDir);
+
+    /* ROOT */
+    const currentWorkingDir = process.cwd();
+    const resourcesPath = path.join(currentWorkingDir, "resources");
+
+    initGit(destinationDir);
+
+    let stats = await execAsync(
+      `powershell.exe -command copy-item -path ${resourcesPath}\\.gitignore -destination ${destinationDir}`,
+      {
+        cwd: destinationDir,
+      }
+    );
+
+    stats = await execAsync(
+      `powershell.exe -command copy-item -path ${resourcesPath}\\package.json -destination ${destinationDir}`,
+      {
+        cwd: destinationDir,
+      }
+    );
+
+    stats = await execAsync(
+      `powershell.exe copy-item -path ${resourcesPath}\\package-lock.json -destination ${destinationDir}`,
+      {
+        cwd: destinationDir,
+      }
+    );
+    console.log(chalk.yellow("Installing packages ..."));
+    stats = await execAsync(`npm ci`, {
+      cwd: destinationDir,
+    });
 
     console.log(
       chalk.green(

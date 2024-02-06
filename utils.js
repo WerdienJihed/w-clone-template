@@ -49,6 +49,22 @@ export const removeGitFolder = async (destinationDirectory) => {
   });
 };
 
+export const initGit = async (directory) => {
+  let stats = await execAsync(`git init`, {
+    cwd: directory,
+  });
+
+  console.log(chalk.green(stats.stdout));
+
+  stats = await execAsync(`git add .`, {
+    cwd: directory,
+  });
+
+  stats = await execAsync(`git commit -m "initial commit"`, {
+    cwd: directory,
+  });
+};
+
 export const removeReadme = async (directory) => {
   const removeGitFolderCmd = isWindows
     ? "powershell.exe -command remove-item README.md -recurse -force"
@@ -62,19 +78,7 @@ export const removeReadme = async (directory) => {
 export const resetGit = async (destinationDirectory) => {
   await removeGitFolder(destinationDirectory);
 
-  let stats = await execAsync(`git init`, {
-    cwd: destinationDirectory,
-  });
-
-  console.log(chalk.green(stats.stdout));
-
-  stats = await execAsync(`git add .`, {
-    cwd: destinationDirectory,
-  });
-
-  stats = await execAsync(`git commit -m "initial commit"`, {
-    cwd: destinationDirectory,
-  });
+  await initGit(destinationDirectory);
 
   console.log(chalk.green(stats.stdout));
 };
