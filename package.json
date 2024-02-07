@@ -3,7 +3,7 @@
   "version": "1.0.7",
   "type": "module",
   "bin": {
-    "w-clone-template": "index.js"
+    "w-clone-template": "main.js"
   },
   "description": "The \"clone template\" npm package quickly sets up new project by cloning a repository. Simplifies project initiation and maintains consistency.",
   "repository": {
@@ -11,7 +11,7 @@
     "url": "https://github.com/WerdienJihed/w-clone-template.git"
   },
   "homepage": "https://github.com/WerdienJihed/w-clone-template.git#readme",
-  "main": "index.js",
+  "main": "main.js",
   "keywords": [
     "Project scaffolding"
   ],
