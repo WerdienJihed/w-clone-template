@@ -1,18 +1,43 @@
 import util from "util";
 import { exec } from "child_process";
 import chalk from "chalk";
-import os from "os";
 import path from "path";
 import fs from "fs";
 
 const execAsync = util.promisify(exec);
-const isWindows = os.platform() === "win32";
+const currentWorkingDir = process.cwd();
+const resourcesPath = path.join(currentWorkingDir, "resources");
 
-export const cloneRepo = async (repositoryUrl, destinationDirectory) => {
-  const stats = await execAsync(
-    `git clone ${repositoryUrl} ${destinationDirectory}`
-  );
+export const cloneRepo = async (repositoryUrl, directory) => {
+  const stats = await execAsync(`git clone ${repositoryUrl} ${directory}`);
   console.log(chalk.yellow(stats.stderr));
+};
+
+export const removeGitFolder = async (directory) => {
+  await execAsync("powershell.exe -command remove-item .git -recurse -force", {
+    cwd: directory,
+  });
+};
+
+export const initGit = async (directory) => {
+  let stats = await execAsync(`git init`, {
+    cwd: directory,
+  });
+
+  console.log(chalk.green(stats.stdout));
+
+  stats = await execAsync(`git add .`, {
+    cwd: directory,
+  });
+
+  stats = await execAsync(`git commit -m "initial commit"`, {
+    cwd: directory,
+  });
+};
+
+export const resetGit = async (directory) => {
+  await removeGitFolder(directory);
+  await initGit(directory);
 };
 
 export const editIndexHtml = (directory, projectName) => {
@@ -39,46 +64,28 @@ export const editPackageLockJson = async (directory, projectName) => {
   fs.writeFileSync(filePath, JSON.stringify(fileContent, null, 2));
 };
 
-export const removeGitFolder = async (destinationDirectory) => {
-  const removeGitFolderCommand = isWindows
-    ? "powershell.exe -command remove-item .git -recurse -force"
-    : "rm -rf .git";
-
-  await execAsync(removeGitFolderCommand, {
-    cwd: destinationDirectory,
-  });
-};
-
-export const initGit = async (directory) => {
-  let stats = await execAsync(`git init`, {
-    cwd: directory,
-  });
-
-  console.log(chalk.green(stats.stdout));
-
-  stats = await execAsync(`git add .`, {
-    cwd: directory,
-  });
-
-  stats = await execAsync(`git commit -m "initial commit"`, {
-    cwd: directory,
-  });
+export const resetReadme = (directory, projectName) => {
+  const readmePath = path.join(directory, "README.md");
+  fs.writeFileSync(readmePath, `# ${projectName}`);
 };
 
 export const removeReadme = async (directory) => {
-  const removeGitFolderCmd = isWindows
-    ? "powershell.exe -command remove-item README.md -recurse -force"
-    : "rm -rf README.md";
+  await execAsync(
+    "powershell.exe -command remove-item README.md -recurse -force",
+    {
+      cwd: directory,
+    }
+  );
+};
 
-  await execAsync(removeGitFolderCmd, {
+export const installPackages = async (directory) => {
+  execAsync(`npm ci`, {
     cwd: directory,
   });
 };
 
-export const resetGit = async (destinationDirectory) => {
-  await removeGitFolder(destinationDirectory);
-
-  await initGit(destinationDirectory);
-
-  console.log(chalk.green(stats.stdout));
+export const copyItem = async (fileName, destinationDir) => {
+  await execAsync(
+    `powershell.exe -command copy-item -path ${resourcesPath}\\${fileName} -destination ${destinationDir}`
+  );
 };

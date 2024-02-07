@@ -24,7 +24,7 @@ program.parse();
 const options = program.opts();
 
 const projectName = options.name;
-const destinationDirectory = options.directory
+const directory = options.directory
   ? path.join(options.directory, projectName)
   : path.join(process.cwd(), projectName);
 
@@ -32,13 +32,13 @@ const template = options.template;
 
 switch (template) {
   case "react":
-    await handleReact(destinationDirectory, projectName);
+    await handleReact(directory, projectName);
     break;
   case "express":
-    await handleExpress(destinationDirectory, projectName);
+    await handleExpress(directory, projectName);
     break;
   case "mern":
-    await handleMern(destinationDirectory, projectName);
+    await handleMern(directory, projectName);
     break;
   default:
     break;

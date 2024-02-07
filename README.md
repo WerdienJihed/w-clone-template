@@ -17,7 +17,7 @@ Options:
 - -n, --name <name>: Required. Specifies the name for your new project.
 - -d, --directory <path>: Specifies the destination directory name. If not provided, the current working directory will be used.
 - -t, --template <template-name>: Specifies the template to use. If not provided, the react template will be used.
-  supported templates are [react, expressjs]
+  supported templates are [react, expressjs, mern]
 
 ## What It Does
 

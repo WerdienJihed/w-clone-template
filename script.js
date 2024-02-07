@@ -1,9 +1,5 @@
 import path from "path";
-import fs from "fs";
 import chalk from "chalk";
-import util from "util";
-import { exec } from "child_process";
-import os from "os";
 import {
   cloneRepo,
   removeGitFolder,
@@ -13,52 +9,25 @@ import {
   removeReadme,
   editIndexHtml,
   initGit,
+  resetReadme,
+  installPackages,
+  copyItem,
 } from "./utils.js";
 
-const execAsync = util.promisify(exec);
-const isWindows = os.platform() === "win32";
+const reactRepoUrl = "https://github.com/WerdienJihed/react-template";
+const expressRepoUrl = "https://github.com/WerdienJihed/expressjs-template";
 
-const reactRepositoryUrl = "https://github.com/WerdienJihed/react-template";
-const expressRepositoryUrl =
-  "https://github.com/WerdienJihed/expressjs-template";
-
-export const handleReact = async (destinationDirectory, projectName) => {
+export const handleReact = async (directory, projectName) => {
   try {
-    // Clone repository
-    await cloneRepo(reactRepositoryUrl, destinationDirectory);
+    await cloneRepo(reactRepoUrl, directory);
+    editPackageJson(directory, projectName);
+    editPackageLockJson(directory, projectName);
+    editIndexHtml(directory, projectName);
+    resetReadme(directory, projectName);
+    await resetGit(directory);
 
-    // Edit package.json
-    const packageJsonPath = path.join(destinationDirectory, "package.json");
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
-    packageJson.name = projectName;
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-
-    // Edit package-loc.json
-    const packageLockJsonPath = path.join(
-      destinationDirectory,
-      "package-lock.json"
-    );
-    const packageLockJson = JSON.parse(
-      fs.readFileSync(packageLockJsonPath, "utf-8")
-    );
-    packageLockJson.name = projectName;
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageLockJson, null, 2));
-
-    // Edit index.html
-    const indexPath = path.join(destinationDirectory, "index.html");
-    const indexContent = fs.readFileSync(indexPath, "utf-8");
-    const updatedIndexContent = indexContent.replace(
-      "<title>React Template</title>",
-      `<title>${projectName}</title>`
-    );
-    fs.writeFileSync(indexPath, updatedIndexContent);
-
-    // Reset git
-    await resetGit(destinationDirectory);
-
-    // Reset README.md
-    const readmePath = path.join(destinationDirectory, "README.md");
-    fs.writeFileSync(readmePath, `# ${projectName}`);
+    console.log(chalk.yellow("Installing packages ..."));
+    await installPackages(directory);
 
     console.log(
       chalk.green(
@@ -70,34 +39,16 @@ export const handleReact = async (destinationDirectory, projectName) => {
   }
 };
 
-export const handleExpress = async (destinationDirectory, projectName) => {
+export const handleExpress = async (directory, projectName) => {
   try {
-    // Clone repository
-    await cloneRepo(expressRepositoryUrl, destinationDirectory);
+    await cloneRepo(expressRepoUrl, directory);
+    editPackageJson(directory, projectName);
+    editPackageJson(directory, projectName);
+    resetReadme(directory, projectName);
+    await resetGit(directory);
 
-    // Edit package.json
-    const packageJsonPath = path.join(destinationDirectory, "package.json");
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
-    packageJson.name = projectName;
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-
-    // Edit package-loc.json
-    const packageLockJsonPath = path.join(
-      destinationDirectory,
-      "package-lock.json"
-    );
-    const packageLockJson = JSON.parse(
-      fs.readFileSync(packageLockJsonPath, "utf-8")
-    );
-    packageLockJson.name = projectName;
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageLockJson, null, 2));
-
-    // Reset git
-    await resetGit(destinationDirectory);
-
-    // Reset README.md
-    const readmePath = path.join(destinationDirectory, "README.md");
-    fs.writeFileSync(readmePath, `# ${projectName}`);
+    console.log(chalk.yellow("Installing packages ..."));
+    await installPackages(directory);
 
     console.log(
       chalk.green(
@@ -109,13 +60,13 @@ export const handleExpress = async (destinationDirectory, projectName) => {
   }
 };
 
-export const handleMern = async (destinationDir, projectName) => {
+export const handleMern = async (rootDir, projectName) => {
   try {
-    const clientDir = path.join(destinationDir, "client");
-    const serverDir = path.join(destinationDir, "server");
+    const clientDir = path.join(rootDir, "client");
+    const serverDir = path.join(rootDir, "server");
 
     /* CLIENT */
-    await cloneRepo(reactRepositoryUrl, clientDir);
+    await cloneRepo(reactRepoUrl, clientDir);
     await editPackageJson(clientDir, "client");
     await editPackageLockJson(clientDir, "client");
     await editIndexHtml(clientDir, projectName);
@@ -123,43 +74,22 @@ export const handleMern = async (destinationDir, projectName) => {
     await removeReadme(clientDir);
 
     /* SERVER */
-
-    await cloneRepo(expressRepositoryUrl, serverDir);
+    await cloneRepo(expressRepoUrl, serverDir);
     await editPackageJson(serverDir, "server");
     await editPackageLockJson(serverDir, "server");
     await removeGitFolder(serverDir);
     await removeReadme(serverDir);
 
     /* ROOT */
-    const currentWorkingDir = process.cwd();
-    const resourcesPath = path.join(currentWorkingDir, "resources");
-
-    initGit(destinationDir);
-
-    let stats = await execAsync(
-      `powershell.exe -command copy-item -path ${resourcesPath}\\.gitignore -destination ${destinationDir}`,
-      {
-        cwd: destinationDir,
-      }
-    );
-
-    stats = await execAsync(
-      `powershell.exe -command copy-item -path ${resourcesPath}\\package.json -destination ${destinationDir}`,
-      {
-        cwd: destinationDir,
-      }
-    );
-
-    stats = await execAsync(
-      `powershell.exe copy-item -path ${resourcesPath}\\package-lock.json -destination ${destinationDir}`,
-      {
-        cwd: destinationDir,
-      }
-    );
+    copyItem(".gitignore", rootDir);
+    copyItem("package.json", rootDir);
+    copyItem("package-lock.json", rootDir);
     console.log(chalk.yellow("Installing packages ..."));
-    stats = await execAsync(`npm ci`, {
-      cwd: destinationDir,
-    });
+
+    await installPackages(clientDir);
+    await installPackages(serverDir);
+    await installPackages(rootDir);
+    await initGit(rootDir);
 
     console.log(
       chalk.green(
