@@ -9,7 +9,7 @@ program
   .description(
     "A command-line tool to quickly set up a new project based on a template."
   )
-  .version("0.0.1");
+  .version("1.0.6");
 
 program
   .requiredOption("-n, --name <name>", "Project name")
