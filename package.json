@@ -3,7 +3,7 @@
   "version": "1.0.5",
   "type": "module",
   "bin": {
-    "w-crt": "index.js"
+    "w-clone-template": "index.js"
   },
   "description": "The \"clone template\" npm package quickly sets up new project by cloning a repository. Simplifies project initiation and maintains consistency.",
   "repository": {
